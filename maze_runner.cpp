@@ -101,7 +101,7 @@ void print_maze() {
         }
         std::cout << std::endl;
     }
-    
+    std::cout << std::endl;
 }
 
 // Função para verificar se uma posição é válida
@@ -112,7 +112,7 @@ bool is_valid_position(int row, int col) {
     // 2. Verifique se a posição é um caminho válido (maze[row][col] == 'x')
     // 3. Retorne true se ambas as condições forem verdadeiras, false caso contrário
 
-    return (row >= 0 && row < num_rows && col >=0 && col < num_cols && maze[row][col] == 'x');
+    return (row >= 0 && row < num_rows && col >=0 && col < num_cols && (maze[row][col] == 'x' or maze[row][col] == 's'));
 }
 
 // Função principal para navegar pelo labirinto
@@ -133,6 +133,47 @@ bool walk(Position pos) {
     //    c. Se walk retornar true, propague o retorno (retorne true)
     // 7. Se todas as posições foram exploradas sem encontrar a saída, retorne false
     
+    Position next_position = {0, 0};
+    Position next_move = {0, 0};
+
+    if(maze[pos.row][pos.col] == 's'){
+        return true;
+    }
+
+    maze[pos.row][pos.col] = '.';
+    print_maze();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    
+
+    if(is_valid_position(pos.row-1, pos.col)){ //North
+        next_position = {pos.row-1, pos.col};
+        valid_positions.push(next_position);
+    }
+
+    if(is_valid_position(pos.row, pos.col+1)){ //East
+        next_position = {pos.row, pos.col+1};
+        valid_positions.push(next_position);
+    }
+
+    if(is_valid_position(pos.row+1, pos.col)){ //South
+        next_position = {pos.row+1, pos.col};
+        valid_positions.push(next_position);
+    }
+
+    if(is_valid_position(pos.row, pos.col-1)){ //West
+        next_position = {pos.row, pos.col-1};
+        valid_positions.push(next_position);
+    }
+
+
+    while(!valid_positions.empty()){
+        next_move = valid_positions.top();
+        valid_positions.pop();
+        if(walk(next_move)){
+            return true;
+        }
+    }
+
     return false; // Placeholder - substitua pela lógica correta
 }
 
@@ -143,7 +184,6 @@ int main(int argc, char* argv[]) {
     }
 
     Position initial_pos = load_maze(argv[1]);
-    print_maze();
     if (initial_pos.row == -1 || initial_pos.col == -1) {
         std::cerr << "Posição inicial não encontrada no labirinto." << std::endl;
         return 1;
