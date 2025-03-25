@@ -145,13 +145,13 @@ bool walk(Position pos) {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
 
-    if(is_valid_position(pos.row-1, pos.col)){ //North
-        next_position = {pos.row-1, pos.col};
+    if(is_valid_position(pos.row, pos.col-1)){ //West
+        next_position = {pos.row, pos.col-1};
         valid_positions.push(next_position);
     }
 
-    if(is_valid_position(pos.row, pos.col+1)){ //East
-        next_position = {pos.row, pos.col+1};
+    if(is_valid_position(pos.row-1, pos.col)){ //North
+        next_position = {pos.row-1, pos.col};
         valid_positions.push(next_position);
     }
 
@@ -160,10 +160,10 @@ bool walk(Position pos) {
         valid_positions.push(next_position);
     }
 
-    if(is_valid_position(pos.row, pos.col-1)){ //West
-        next_position = {pos.row, pos.col-1};
+    if(is_valid_position(pos.row, pos.col+1)){ //East
+        next_position = {pos.row, pos.col+1};
         valid_positions.push(next_position);
-    }
+    }    
 
 
     while(!valid_positions.empty()){
