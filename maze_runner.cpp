@@ -30,8 +30,63 @@ Position load_maze(const std::string& file_name) {
     // 5. Encontre e retorne a posição inicial ('e')
     // 6. Trate possíveis erros (arquivo não encontrado, formato inválido, etc.)
     // 7. Feche o arquivo após a leitura
+
+    int space_position, point_position, size;
+    int row = 0, column = 0;
+    int entrance_found = 0;
+    std::string line, extension, aux;
+    std::ifstream inputFile;
+    Position initial_position;
+
+
+    point_position = file_name.find_last_of('.'); 
+    size = file_name.length();
+    extension = std::string(file_name.begin()+point_position, file_name.begin()+size);
+
+    if(extension != ".txt"){
+        std::cout << "Erro, extensão não suportada." << std::endl;
+        return {-1,-1};
+    }
+
+    inputFile.open(file_name);
+
+    if (!inputFile.is_open()){
+        std::cout << "Erro, não foi possivel abrir o arquivo." << std::endl;
+        return {-1,-1};
+    }
+
+    std::getline(inputFile, aux); //Get first line
+
+    size = aux.length();
+    space_position = aux.find(' ');
+
+    num_rows = std::stoi(std::string(aux.begin(), aux.begin()+space_position));
+    num_cols = std::stoi(std::string(aux.begin()+space_position, aux.begin()+size));
+
+
+    maze.resize(num_rows);
+    for(int i=0; i < num_rows; i++){
+        maze[i].resize(num_cols, '#');
+    }
     
-    return {-1, -1}; // Placeholder - substitua pelo valor correto
+    while(std::getline(inputFile, line)){
+        for(column = 0; column < num_cols; column++){
+            if(line[column] != '#'){
+                maze[row][column] = line[column];
+                if(line[column] == 'e'){
+                    entrance_found = 1;
+                    initial_position.row = row;
+                    initial_position.col = column;
+                }
+            }
+        }
+        row++;
+    }
+
+    inputFile.close();
+
+    if(!entrance_found) return {-1, -1};
+    else return initial_position;
 }
 
 // Função para imprimir o labirinto
@@ -40,6 +95,13 @@ void print_maze() {
     // 1. Percorra a matriz 'maze' usando um loop aninhado
     // 2. Imprima cada caractere usando std::cout
     // 3. Adicione uma quebra de linha (std::cout << '\n') ao final de cada linha do labirinto
+    for(int i = 0; i < num_rows; i++){
+        for(int j = 0; j < num_cols; j++){
+            std::cout << maze[i][j];
+        }
+        std::cout << std::endl;
+    }
+    
 }
 
 // Função para verificar se uma posição é válida
@@ -81,6 +143,7 @@ int main(int argc, char* argv[]) {
     }
 
     Position initial_pos = load_maze(argv[1]);
+    print_maze();
     if (initial_pos.row == -1 || initial_pos.col == -1) {
         std::cerr << "Posição inicial não encontrada no labirinto." << std::endl;
         return 1;
