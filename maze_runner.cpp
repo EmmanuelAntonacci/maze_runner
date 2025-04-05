@@ -140,8 +140,9 @@ bool walk(Position pos) {
         return true;
     }
 
-    maze[pos.row][pos.col] = '.';
+    maze[pos.row][pos.col] = 'o';
     print_maze();
+    maze[pos.row][pos.col] = '.';
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
 
