@@ -4,6 +4,7 @@
 #include <stack>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 // Representação do labirinto
 using Maze = std::vector<std::vector<char>>;
@@ -19,6 +20,8 @@ Maze maze;
 int num_rows;
 int num_cols;
 std::stack<Position> valid_positions;
+std::vector<std::thread> threads;
+std::mutex mutex;
 
 // Função para carregar o labirinto de um arquivo
 Position load_maze(const std::string& file_name) {
@@ -139,10 +142,13 @@ bool walk(Position pos) {
     if(maze[pos.row][pos.col] == 's'){
         return true;
     }
-
+    
+    mutex.lock();
     maze[pos.row][pos.col] = 'o';
     print_maze();
     maze[pos.row][pos.col] = '.';
+    mutex.unlock();
+
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
 
@@ -168,6 +174,12 @@ bool walk(Position pos) {
 
 
     while(!valid_positions.empty()){
+        std::cout << valid_positions.size() << std::endl;
+        while(valid_positions.size() > 1){
+            next_move = valid_positions.top();
+            valid_positions.pop();
+            threads.push_back(std::thread(walk, next_move));
+        }
         next_move = valid_positions.top();
         valid_positions.pop();
         if(walk(next_move)){
