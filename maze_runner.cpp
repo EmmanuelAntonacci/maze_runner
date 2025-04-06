@@ -139,11 +139,11 @@ bool walk(Position pos) {
     Position next_position = {0, 0};
     Position next_move = {0, 0};
 
+    mutex.lock();
     if(maze[pos.row][pos.col] == 's'){
         return true;
     }
     
-    mutex.lock();
     maze[pos.row][pos.col] = 'o';
     print_maze();
     maze[pos.row][pos.col] = '.';
@@ -153,23 +153,31 @@ bool walk(Position pos) {
     
 
     if(is_valid_position(pos.row, pos.col-1)){ //West
+        mutex.lock();
         next_position = {pos.row, pos.col-1};
         valid_positions.push(next_position);
+        mutex.unlock();
     }
 
     if(is_valid_position(pos.row-1, pos.col)){ //North
+        mutex.lock();
         next_position = {pos.row-1, pos.col};
         valid_positions.push(next_position);
+        mutex.unlock();
     }
 
     if(is_valid_position(pos.row+1, pos.col)){ //South
+        mutex.lock();
         next_position = {pos.row+1, pos.col};
         valid_positions.push(next_position);
+        mutex.unlock();
     }
 
     if(is_valid_position(pos.row, pos.col+1)){ //East
+        mutex.lock();
         next_position = {pos.row, pos.col+1};
         valid_positions.push(next_position);
+        mutex.unlock();
     }    
 
 
