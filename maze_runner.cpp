@@ -4,7 +4,6 @@
 #include <stack>
 #include <thread>
 #include <chrono>
-#include <mutex>
 
 // Representação do labirinto
 using Maze = std::vector<std::vector<char>>;
@@ -20,8 +19,6 @@ Maze maze;
 int num_rows;
 int num_cols;
 std::stack<Position> valid_positions;
-std::vector<std::thread> threads;
-std::mutex mutex;
 
 // Função para carregar o labirinto de um arquivo
 Position load_maze(const std::string& file_name) {
@@ -139,7 +136,6 @@ bool walk(Position pos) {
     Position next_position = {0, 0};
     Position next_move = {0, 0};
 
-    mutex.lock();
     if(maze[pos.row][pos.col] == 's'){
         return true;
     }
@@ -147,47 +143,32 @@ bool walk(Position pos) {
     maze[pos.row][pos.col] = 'o';
     print_maze();
     maze[pos.row][pos.col] = '.';
-    mutex.unlock();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
 
     if(is_valid_position(pos.row, pos.col-1)){ //West
-        mutex.lock();
         next_position = {pos.row, pos.col-1};
         valid_positions.push(next_position);
-        mutex.unlock();
     }
 
     if(is_valid_position(pos.row-1, pos.col)){ //North
-        mutex.lock();
         next_position = {pos.row-1, pos.col};
         valid_positions.push(next_position);
-        mutex.unlock();
     }
 
     if(is_valid_position(pos.row+1, pos.col)){ //South
-        mutex.lock();
         next_position = {pos.row+1, pos.col};
         valid_positions.push(next_position);
-        mutex.unlock();
     }
 
     if(is_valid_position(pos.row, pos.col+1)){ //East
-        mutex.lock();
         next_position = {pos.row, pos.col+1};
         valid_positions.push(next_position);
-        mutex.unlock();
     }    
 
 
     while(!valid_positions.empty()){
-        std::cout << valid_positions.size() << std::endl;
-        while(valid_positions.size() > 1){
-            next_move = valid_positions.top();
-            valid_positions.pop();
-            threads.push_back(std::thread(walk, next_move));
-        }
         next_move = valid_positions.top();
         valid_positions.pop();
         if(walk(next_move)){
